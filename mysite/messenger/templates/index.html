@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" href="#">
+
+        <!--Jquery 1.11.1-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    </head>
+
+    <body>
+        <h1>Hello</h1>
+        
+        <p>
+            <a href="/admin/">
+                <button>Admin panel</button>
+            </a>
+        </p>
+
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
