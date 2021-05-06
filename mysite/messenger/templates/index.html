@@ -10,67 +10,24 @@
     </head>
 
     <body>
-        <h1>Hello {{ user }}</h1>
+        <h1>
+            Hello {{ user }}
 
-        {% if user.is_authenticated %}   
-            <form method="POST">
-                {% csrf_token %}
-                <button name="form" value="logout">Logout</button>
-            </form>
+            {% if user.is_authenticated %}   
+                <form method="POST" action="/home">
+                    {% csrf_token %}
+                    <button name="form" value="logout">Logout</button>
+                </form>
+            {% endif %}
+        </h1>
 
-            {% if user.is_superuser %}<a href="/admin/"><button>Admin panel</button></a>{% endif %}
-        {% endif %}
+        <div>
+            {% if user.is_superuser %}<a href="/admin/">Admin panel</a>{% endif %}
+            <a href="/home">Main page</a>
+            <a href="/profile">My profile</a>
+        </div>
         
-        <!--Table of users-->
-        <div style="display: flex; width: 512px; border: 1px solid">
-            <ul style="flex:auto;">
-                <h3>Users</h3>
-                {% for u in users %}
-                    <li>ID: {{ u.id }} | {{ u }}</li>
-                {% endfor %}
-            </ul>
-
-            <hr>
-
-            <ul style="flex:auto;">
-                <h3>Profiles</h3>
-                {% for p in profiles %}
-                    <li>{{ p }}</li>
-                {% endfor %}
-            </ul>
-        </div><br>
-
-        <!--Register and login user-->
-        <div style="display: flex; width: 600px; border: 1px solid">
-            <form method="POST" style="flex:auto; padding: 8px">{% csrf_token %}
-                <h3>Register</h3>
-                {{ r_form.as_p }}
-                <button name="form" value="register">Register</button>
-            </form>
-
-            <hr>
-
-            <form method="POST" style="flex:auto; padding: 8px">{% csrf_token %}
-                <h3>Login</h3>
-                {{ l_form.as_p }}
-                <button name="form" value="login">Login</button>
-            </form>
-        </div><br>
-
-        <!--Friends of current user-->
-        <form method="POST">
-            {% csrf_token %}
-            <input name="user_id" type="number" min="1" value="1">
-            <button name="form" value="add_friend">Add friend</button>
-            <button name="form" value="remove_friend">Remove friend</button>
-        </form>
-
-        <h3>Friends</h3>
-        <ul>
-            {% for friend in user.profile.get_all_friends %}
-                <li>ID: {{ friend.id }} | {{ friend }}</li>
-            {% endfor %}
-        </ul>
+        <hr>
         
         {% block content %}
         {% endblock %}

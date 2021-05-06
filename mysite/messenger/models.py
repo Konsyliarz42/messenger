@@ -8,6 +8,7 @@ from datetime import datetime
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     firends = models.JSONField(default=list)
+    description = models.TextField(blank=True)
 
     #--------------------------------
 

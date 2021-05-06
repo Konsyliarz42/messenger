@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <form method="POST">{% csrf_token %}
+        <h3>Edit</h3>
+        {{ form.as_p }}
+        <button name="form" value="edit">Submit</button>
+    </form>
+    <br>
+
+    <h3>Find a friend</h3>
+    <div style="overflow-y: scroll; max-height: 128px; width: 512px; border: 1px solid lightgrey">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" value="add_friend" name="form">
+
+            {% for u in users %}
+                {% if u in friends %}
+                    <li><button name="user_id" value="{{ u.id }}" disabled>Add</button> {{ u.username }}</li>
+                {% else %}
+                    <li><button name="user_id" value="{{ u.id }}">Add</button> {{ u.username }}</li>
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+
+    <br>
+
+    <h3>Friends list</h3>
+    <div style="overflow-y: scroll; max-height: 256px; width: 512px; border: 1px solid lightgrey">
+        {% for f in friends %}
+            <div style="border: 1px solid; margin: 8px; padding: 8px">
+                <strong>Username: </strong>{{ f.username }}<br>
+                <strong>Description: </strong>{{ f.profile.description }}<br>
+                <small>ID: {{ f.id }}</small>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="remove_friend" name="form">
+                    <button name="user_id" value="{{ f.id }}">Remove</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

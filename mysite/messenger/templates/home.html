@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <!--Register and login user-->
+    <div style="display: flex; width: min-content; border: 1px solid">
+        <form method="POST" style="flex:auto; padding: 8px; width: 512px;">{% csrf_token %}
+            <h3>Register</h3>
+            {{ r_form.as_p }}
+            <button name="form" value="register">Register</button>
+        </form>
+
+        <hr>
+
+        <form method="POST" style="flex:auto; padding: 8px; width: 512px;">{% csrf_token %}
+            <h3>Login</h3>
+            {{ l_form.as_p }}
+            <button name="form" value="login">Login</button>
+        </form>
+    </div><br>
+
+    <!--Table of users-->
+    <div style="display: flex; width:min-content; border: 1px solid">
+        <ul style="flex:auto; width: 256px;">
+            <h3>Users</h3>
+            {% for u in users %}
+                <li>ID: {{ u.id }} | {{ u }}</li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+
+        <ul style="flex:auto; width: 256px;">
+            <h3>Profiles</h3>
+            {% for p in profiles %}
+                <li>{{ p }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}
