@@ -27,6 +27,14 @@
 
     <br>
 
+    <div>
+        {% for name, conversation in conversations %}
+            <a href="conversation/{{ conversation.id }}">{{ name }}</a>
+        {% endfor %}
+    </div>
+
+    <br>
+
     <h3>Friends list</h3>
     <div style="overflow-y: scroll; max-height: 256px; width: 512px; border: 1px solid lightgrey">
         {% for f in friends %}
@@ -39,6 +47,12 @@
                     {% csrf_token %}
                     <input type="hidden" value="remove_friend" name="form">
                     <button name="user_id" value="{{ f.id }}">Remove</button>
+                </form>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="conversation" name="form">
+                    <button name="user_id" value="{{ f.id }}">Start talk</button>
                 </form>
             </div>
         {% endfor %}

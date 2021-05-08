@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <div style="border: 1px solid lightgray; width: 512px; height: 512px; overflow-y: scroll; display: flex; flex-flow: column">
+        {% if entries %}
+            {% for entry in entries.items %}
+                {% if entry.1.0 == user %}
+                <div style="align-self: flex-end; width: 75%;">
+                {% else %}
+                <div style="align-self: flex-start; width: 75%;">
+                {% endif %}
+                    <div style="border: 1px solid; padding: 4px; margin-bottom: 8px;">
+                        <strong>{{ entry.1.0 }}</strong>
+                        <p>{{ entry.1.1 }}</p>
+                        <div style="text-align: right;">
+                            <small>{{ entry.0 }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <form method="POST">{% csrf_token %}
+        <textarea cols="32" rows="6" name="message"></textarea>
+        <button>Enter</button>
+    </form>
+
+{% endblock %}

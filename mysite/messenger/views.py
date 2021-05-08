@@ -1,13 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
-from .models import User, Profile
+from .models import User, Profile, Conversation
 from .forms import RegisterForm, LoginForm, EditProfileForm
 
 TEMPLATES = {
     'index': "home.html",
-    'profile': 'profile.html'
+    'profile': 'profile.html',
+    'conversation': 'conversation.html'
 }
 
 def index(request):
@@ -68,7 +70,8 @@ def profile(request):
         'username': request.user.username,
         'first_name': request.user.first_name,
         'last_name': request.user.last_name,
-        'email': request.user.email
+        'email': request.user.email,
+        'description': request.user.profile.description
     })
 
     if request.method == 'POST':
@@ -77,16 +80,35 @@ def profile(request):
         # Edit user
         if form_variant == 'edit':
             form = EditProfileForm(request.user, request.POST)
+            first_name = request.POST.get('first_name') or None
+            last_name = request.POST.get('last_name') or None
+            email = request.POST.get('email') or None
+            password = request.POST.get('new_password') or None
+            description = request.POST.get('description') or None
 
             if form.is_valid():
                 user = request.user
-                user.first_name = request.POST.get('first_name')
-                user.last_name = request.POST.get('last_name')
-                user.email = request.POST.get('email')
-                user.set_password(request.POST.get('new_password'))
-                user.save()
 
-                update_session_auth_hash(request, user)
+                if first_name:
+                    user.first_name = first_name
+                    user.save()
+                
+                if last_name:
+                    user.last_name = last_name
+                    user.save()
+
+                if email:
+                    user.email = email
+                    user.save()
+
+                if password:
+                    user.set_password(new_password)
+                    user.save()
+                    update_session_auth_hash(request, user)
+
+                if description:
+                    user.profile.description = description
+                    user.profile.save()
 
                 user = authenticate(request,
                     username=request.POST.get('username'),
@@ -99,19 +121,68 @@ def profile(request):
         # Add friend
         if form_variant == 'add_friend':
             profile = request.user.profile
-            profile.add_friend(request.POST.get('user_id'))
+            user = User.objects.get(id=request.POST.get('user_id'))
+            profile.friends.add(user)
             profile.save()
 
         # Remove friend
         if form_variant == 'remove_friend':
             profile = request.user.profile
-            profile.remove_friend(request.POST.get('user_id'))
+            user = User.objects.get(id=request.POST.get('user_id'))
+            profile.friends.remove(user)
             profile.save()
+
+
+        # Start conversation
+        if form_variant == 'conversation':
+            user_id = int(request.POST.get('user_id'))
+            user = User.objects.get(id=user_id)
+            user_conversations = [c for c in user.profile.conversations.all() if len(c.members.all()) == 2]
+            old_conversation = [c for c in user_conversations if request.user in c.members.all()]
+
+            if old_conversation:
+                return redirect(f'/conversation/{old_conversation[0].id}')
+
+            conversation = Conversation(start_conversation=datetime.now())
+            conversation.save()
+            
+            conversation.members.add(request.user)
+            conversation.members.add(user)
+            conversation.save()
+
+            request.user.profile.conversations.add(conversation)
+            request.user.profile.save()
+
+            user.profile.conversations.add(conversation)
+            user.profile.save()
+
+            return redirect(f'/conversation/{conversation.id}')
 
     context = {
         'users': User.objects.all(),
-        'friends': request.user.profile.get_all_friends(),
+        'friends': request.user.profile.friends.all(),
+        'conversations': request.user.profile.get_conversations(),
         'form': form
     }
 
     return render(request, TEMPLATES['profile'], context)
+
+
+@login_required
+def conversation(request, conversation_id):
+
+    conversation = Conversation.objects.get(id=conversation_id)
+
+    if request.user not in conversation.members.all():
+        return redirect(f'/home')
+    
+    if request.method == 'POST':
+        conversation.add_entry(request.user, request.POST.get('message'))
+        conversation.save()
+
+    context = {
+        'members': conversation.members,
+        'entries': conversation.get_entries()
+    }
+
+    return render(request, TEMPLATES['conversation'], context)

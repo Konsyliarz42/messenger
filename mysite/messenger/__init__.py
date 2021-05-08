@@ -1,0 +1,1 @@
+DATETIME_FORMAT = "%Y-%m-%d %X" # year-month-day hours:minutes:seconds.microseconds

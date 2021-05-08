@@ -94,6 +94,7 @@ class EditProfileForm(forms.Form):
     password = forms.CharField(max_length=150, widget=forms.PasswordInput, required=False)
     new_password = forms.CharField(max_length=150, widget=forms.PasswordInput, required=False)
     confirm_new_password = forms.CharField(max_length=150, widget=forms.PasswordInput, required=False)
+    description = forms.CharField(max_length=1024, widget=forms.Textarea, required=False)
 
     def __init__(self, user, *args, **kwargs):
         
